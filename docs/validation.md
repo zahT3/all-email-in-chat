@@ -12,10 +12,10 @@ Verified locally on 2026-09-28, macOS arm64, Python 3.12.12. Runtime versions:
 | Distribution | Wheel and sdist built | Python package build; wheel installed as a PATH command |
 | Installed CLI outside source tree | Passed | Temporary working directory; doctor, simulated search/read/draft, send preview, client install preview; [machine-readable result](installed-smoke.json) |
 | Four upstreams | Scoped tests passed | [Separate audit](research/README.md); not part of this project's test count |
-| GitHub Actions | Not run | Workflow prepared, repository not yet published |
+| GitHub Actions | **Passed: 101 tests, lint, formatting, build** | Linux runner; [initial publication run](https://github.com/zahT3/all-email-in-chat/actions/runs/36389912274), commit `3cb0c62` |
 | Actual desktop UIs | Not run | Official configuration documentation checked; product-version acceptance remains pending |
 | Real providers / credentials | Not run | No real email read, draft saved remotely, email sent or existing credentials accessed |
-| Windows / Linux | Not run locally | Profiles and code paths are not an OS acceptance result |
+| OS coverage | macOS local + Linux CI; Windows pending | Linux tests use synthetic accounts and mocked credentials; real OS keyring and desktop acceptance remain pending |
 
 Reproduce the project checks:
 
