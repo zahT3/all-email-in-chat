@@ -28,6 +28,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/email_in_chat"]
 
+[tool.hatch.build]
+exclude = ["/00_工作日志.md", "/local"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"

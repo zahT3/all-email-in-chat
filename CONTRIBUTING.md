@@ -15,6 +15,13 @@ Use synthetic accounts and fixture mail in tests. Do not commit credentials,
 private configuration, `.eml` exports, customer data or screenshots containing mail.
 Normal tests must not depend on a live mailbox or modify desktop configurations.
 
+Keep personal work journals and session notes local. The root collaboration
+journal and `local/` are excluded from Git and distribution artifacts. Public
+documentation should explain the product, contributor workflows, architecture
+and reproducible validation, rather than personal conversations or task diaries.
+Run `python3 scripts/check_publication.py` after building to check tracked files
+and distribution contents before publishing.
+
 For a provider or desktop compatibility claim, record the version, date,
 authentication method, exact scope and evidence. Keep documented support,
 protocol tests and real product/provider tests separate. A new profile needs

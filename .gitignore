@@ -15,6 +15,8 @@ build/
 *.sqlite3*
 *.log
 local/
+# Private collaboration journal; keep it locally, never publish it.
+/00_工作日志.md
 accounts.toml
 backend.toml
 backend-*.toml
