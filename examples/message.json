@@ -1,0 +1,6 @@
+{
+  "account_name": "work",
+  "recipients": ["colleague@example.com"],
+  "subject": "Example draft — replace before use",
+  "body": "This is a sample message. Review the account, recipients, and body before saving or sending."
+}

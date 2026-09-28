@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "installation": "wheel_on_PATH",
+  "cwd": "isolated_temporary_directory",
+  "packages": {
+    "all-email-in-chat": "0.1.0",
+    "mcp-email-server": "1.9.1",
+    "mcp": "1.30.0"
+  },
+  "checks": [
+    "doctor_without_config",
+    "demo_mcp_handshake",
+    "search",
+    "read_without_seen",
+    "synthetic_draft",
+    "send_preview",
+    "client_install_preview"
+  ],
+  "real_provider_accessed": false,
+  "real_mail_sent": false,
+  "desktop_settings_modified": false
+}
