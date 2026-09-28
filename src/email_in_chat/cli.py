@@ -90,6 +90,10 @@ def parser() -> argparse.ArgumentParser:
         help="Initialize the MCP backend and list accounts, without sending.",
     )
     commands.add_parser("serve", help="Serve mail tools to an agent over MCP stdio.")
+    ui = commands.add_parser("ui", help="Open the local mailbox and Agent setup wizard.")
+    ui.add_argument(
+        "--no-open", action="store_true", help="Print the private link without opening a browser."
+    )
     commands.add_parser("tools", help="Discover permitted MCP tools and check the connection.")
     raw = commands.add_parser("tool-call", help="Call a named MCP tool through the same policy.")
     raw.add_argument("name")
@@ -176,6 +180,11 @@ def call(path: Path, name: str, arguments: dict) -> dict:
 
 def dispatch(args) -> dict | None:
     path = args.config.expanduser().absolute()
+    if args.command == "ui":
+        from email_in_chat.ui import run_ui
+
+        run_ui(path, executable(), open_browser=not args.no_open)
+        return None
     if args.command == "init":
         return init_config(path, demo=args.demo)
     if args.command == "providers":

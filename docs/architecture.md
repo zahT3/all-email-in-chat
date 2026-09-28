@@ -19,6 +19,7 @@
 | `src/email_in_chat/config.py` | 账号、服务商预设、keyring 写入、权限和后端快照 |
 | `src/email_in_chat/bridge.py` | MCP 子进程、工具发现与调用、权限检查、账号别名 |
 | `src/email_in_chat/clients.py` | 各客户端配置生成、预览、备份与合并 |
+| `src/email_in_chat/ui.py` / `frontend/` | 本地接入向导、IMAP 验证、客户端配置预览与应用 |
 | `src/email_in_chat/demo.py` | 无凭证的合成邮件后端 |
 
 读信统一强制 `mark_as_read=false`；标已读是独立写工具。管理模式没有删除工具；草稿模式只允许草稿目录。白名单交给固定版本后端对收件人执行，包括 To/Cc/Bcc。工具描述提醒模型把邮件当作外部数据，这不是对 prompt injection 的完全防护。
@@ -31,7 +32,7 @@
 
 ## MVP 边界
 
-- 当前是本地 stdio 服务，没有自己的模型、聊天窗口、持续后台任务或远程 HTTP 服务。
+- 当前是本地 stdio 服务，提供独立的本地 HTTP 设置向导；没有自己的模型、聊天窗口、持续后台任务或远程 HTTP MCP 服务。
 - 当前支持 IMAP/SMTP 密码或 app password，没有 OAuth 浏览器授权和刷新。
 - 没有持久化发送去重台账；超时可能发生在服务商已接受之后，错误不能直接解释成未发送。
 - 后端业务结果可能包含 `unknown` 或 `reconciliation_needed`；CLI `ok` 只表示调用没有协议/工具错误，不等于操作全部成功，更不等于收件人送达。查看结果正文中的业务状态。

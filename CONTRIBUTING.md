@@ -4,6 +4,11 @@ Start with the README and `docs/architecture.md`. Keep mailbox protocols inside
 the backend; keep client configuration and operation policy in this package.
 
 ```sh
+cd frontend
+npm ci
+npm run build
+npm run format:check
+cd ..
 uv sync --locked --python 3.12
 uv run ruff check src tests
 uv run ruff format --check src tests
@@ -30,3 +35,7 @@ for policy denial, account isolation, pagination and uncertain write outcomes.
 
 Use a new branch for changes. Describe the behavior and validation in your PR;
 do not label local tests as a successful GitHub Actions run.
+
+Front-end changes must include rebuilt `src/email_in_chat/static/` assets and the
+generated third-party license file. CI verifies the build matches the committed
+assets. See `docs/local-ui.md` for the authenticated local development flow.

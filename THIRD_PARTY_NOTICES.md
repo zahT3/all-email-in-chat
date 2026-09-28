@@ -23,3 +23,11 @@ runtime dependencies, and their source is not copied into this repository:
 - [samihalawa/email-smtp-imap-mcp](https://github.com/samihalawa/email-smtp-imap-mcp): MIT.
 
 See `docs/research/` for precise commits, evidence, and the design lessons used.
+
+## Bundled setup interface
+
+The compiled local interface includes React/React DOM and Scheduler (MIT),
+Lucide icons (ISC), and Vite's build helper (MIT). Full notices are distributed in
+`src/email_in_chat/static/LICENSES.txt`, generated from the locked npm packages.
+The frontend itself is original project code; the upstream interface was studied
+as a reference and was not copied.

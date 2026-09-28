@@ -55,3 +55,11 @@
 后端快照只含 keyring 占位符；客户端原配置的备份可能含其他服务的秘密，必须保持私人权限。不要手工编辑 runtime 快照，更新账号配置后重新启动 MCP。
 
 在项目根目录升级本地安装：`uv tool install --reinstall --python 3.12 .`，然后重启客户端中的 MCP 服务。若 `email-in-chat` 不在 PATH，使用 `uv tool update-shell` 后打开新终端。若 `CODEX_HOME` 被自定义，使用 `clients install codex --target /absolute/path/config.toml`。
+
+## Local setup UI
+
+`email-in-chat ui` launches the packaged local browser wizard. `--no-open` prints
+the private launch link without opening a browser. `--config` remains a global
+option placed before `ui`. Like `serve`, this is a long-running process, not a
+one-shot JSON result. See [local UI](local-ui.md) for account editing, connection
+checks, isolated demo behavior, and client configuration installation.

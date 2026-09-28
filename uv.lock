@@ -28,7 +28,7 @@ wheels = [
 
 [[package]]
 name = "all-email-in-chat"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "filelock" },
@@ -36,13 +36,16 @@ dependencies = [
     { name = "keyring" },
     { name = "mcp" },
     { name = "mcp-email-server" },
+    { name = "starlette" },
     { name = "tomli-w" },
     { name = "tomlkit" },
+    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
 dev = [
     { name = "build" },
+    { name = "httpx" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "ruff" },
@@ -55,13 +58,16 @@ requires-dist = [
     { name = "keyring", specifier = ">=25,<26" },
     { name = "mcp", specifier = ">=1.29.1,<2" },
     { name = "mcp-email-server", specifier = "==1.9.1" },
+    { name = "starlette", specifier = ">=1.7,<2" },
     { name = "tomli-w", specifier = ">=1.2,<2" },
     { name = "tomlkit", specifier = ">=0.13,<1" },
+    { name = "uvicorn", specifier = ">=0.54,<1" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "build", specifier = ">=1.2" },
+    { name = "httpx", specifier = ">=0.28,<1" },
     { name = "pytest", specifier = ">=8,<9" },
     { name = "pytest-asyncio", specifier = ">=1,<2" },
     { name = "ruff", specifier = ">=0.14" },

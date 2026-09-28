@@ -231,6 +231,7 @@ def add_account(
     imap_port: int = 993,
     smtp_port: int = 465,
     receive_only: bool = False,
+    replace_existing: bool = False,
 ) -> dict:
     private_parent(path)
     if not isinstance(receive_only, bool):
@@ -241,7 +242,12 @@ def add_account(
         data = load_config(path)
         if data["demo"]:
             raise ConfigError("Demo config cannot contain real accounts. Use a separate config.")
-        if any(a["name"] == name for a in data["accounts"]):
+        exists = any(a["name"] == name for a in data["accounts"])
+        if not isinstance(replace_existing, bool):
+            raise ConfigError("replace_existing must be a boolean.")
+        if replace_existing and not exists:
+            raise ConfigError("Account does not exist; it was not changed.")
+        if exists and not replace_existing:
             raise ConfigError("Account already exists; it was not changed.")
         if not isinstance(provider, str) or provider not in PROVIDERS:
             raise ConfigError("Unknown provider preset.")
@@ -257,7 +263,10 @@ def add_account(
             "smtp_port": smtp_port,
             "smtp_starttls": smtp_port == 587,
         }
-        data["accounts"].append(item)
+        if replace_existing:
+            data["accounts"] = [item if a["name"] == name else a for a in data["accounts"]]
+        else:
+            data["accounts"].append(item)
         _validate_config(data)
         write_private(path, tomli_w.dumps(data))
     return {
@@ -286,7 +295,7 @@ def _unsafe_keyring(backend: object) -> bool:
 def store_credentials(
     path: Path, name: str, password: str, smtp_password: str | None = None
 ) -> dict:
-    """Only called from a private terminal. Never an MCP tool."""
+    """Called from a private terminal or authenticated local UI. Never an MCP tool."""
     import keyring
 
     data = load_config(path)

@@ -4,9 +4,15 @@
 
 用自然语言管理邮箱，把同一套邮件工具接入 Claude Code、ChatGPT 桌面端、Kimi Code Desktop、Cursor 等 Agent。
 
-这是一个可安装的 Python CLI 和本地 MCP 服务。首版提供多账号配置、系统钥匙串凭证、只读/草稿/管理权限、客户端配置生成和离线演示。底层复用锁定版本的 [Wh1isper/mcp-email-server](https://github.com/Wh1isper/mcp-email-server)，另审查了三个项目，记录在[选型报告](docs/research/README.md)。
+这是一个可安装的 Python CLI、本地 MCP 服务和图形接入向导。当前提供多账号配置、系统钥匙串凭证、只读/草稿/管理权限、客户端配置生成和离线演示。底层复用锁定版本的 [Wh1isper/mcp-email-server](https://github.com/Wh1isper/mcp-email-server)，另审查了三个项目，记录在[选型报告](docs/research/README.md)。
 
-**状态：0.1.0 MVP。** 自动化测试验证了配置、权限和真实 stdio 协议；尚未通过真实邮箱、各桌面产品 UI 或 Windows/Linux 的端到端验收。OAuth、远程托管和后台定时执行尚未实现。“All”是项目方向，不代表所有邮箱已经兼容。
+**状态：0.2.0 MVP，含本地接入向导。** 自动化测试验证了配置、权限和真实 stdio 协议；尚未通过真实邮箱、各桌面产品 UI 或 Windows/Linux 的端到端验收。OAuth、远程托管和后台定时执行尚未实现。“All”是项目方向，不代表所有邮箱已经兼容。
+
+## 图形接入向导（0.2.0）
+
+安装后运行 `email-in-chat ui`，在浏览器中完成 **添加邮箱 → 测试 IMAP 连接 → 预览并写入 Agent 配置**。支持阿里企业邮箱等预设，密码只在本机输入并存入系统钥匙串。新配置默认只读。
+
+首次可选择模拟邮箱，不需要凭证；演示模式只写独立测试配置，不修改真实 Agent 设置。安装用户无需 Node。详见[本地向导说明](docs/local-ui.md)。
 
 ## 它和 MCP 的关系
 
@@ -136,4 +142,4 @@ uv build
 - [贡献说明](CONTRIBUTING.md)与[第三方说明](THIRD_PARTY_NOTICES.md)。本项目代码使用 MIT 许可证。
 - [Agent 使用指引](skills/email-in-chat/SKILL.md)：供支持 Skill 的客户端选用；MCP 连接本身不依赖它。
 
-English overview: a local-first email MCP gateway with one account configuration, OS keyring credentials, enforced operation modes, client configuration helpers, and a credential-free demo. The pinned IMAP/SMTP runtime is `mcp-email-server==1.9.1`. Desktop profiles are documented and protocol-tested, but product UI and live provider acceptance tests are still pending. This release does not implement OAuth, hosting, scheduling, or a universal mailbox API.
+English overview: a local-first email MCP gateway with one account configuration, OS keyring credentials, enforced operation modes, client configuration helpers, and a credential-free demo. The pinned IMAP/SMTP runtime is `mcp-email-server==1.9.1`. Desktop profiles are documented and protocol-tested, but actual desktop-agent UI and live provider acceptance tests are still pending. This release does not implement OAuth, hosting, scheduling, or a universal mailbox API.

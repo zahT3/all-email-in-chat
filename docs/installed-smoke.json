@@ -3,7 +3,7 @@
   "installation": "wheel_on_PATH",
   "cwd": "isolated_temporary_directory",
   "packages": {
-    "all-email-in-chat": "0.1.0",
+    "all-email-in-chat": "0.2.0",
     "mcp-email-server": "1.9.1",
     "mcp": "1.30.0"
   },
@@ -14,7 +14,10 @@
     "read_without_seen",
     "synthetic_draft",
     "send_preview",
-    "client_install_preview"
+    "client_install_preview",
+    "installed_ui_assets_and_licenses",
+    "ui_authenticated_demo_connection",
+    "ui_isolated_client_install"
   ],
   "real_provider_accessed": false,
   "real_mail_sent": false,

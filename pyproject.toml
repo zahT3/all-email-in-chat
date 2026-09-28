@@ -1,6 +1,6 @@
 [project]
 name = "all-email-in-chat"
-version = "0.1.0"
+version = "0.2.0"
 description = "Configure your email once. Bring it to your desktop AI agents through MCP."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -13,13 +13,15 @@ dependencies = [
   "tomlkit>=0.13,<1",
   "filelock>=3.20,<4",
   "jsonschema>=4.20,<5",
+  "starlette>=1.7,<2",
+  "uvicorn>=0.54,<1",
 ]
 
 [project.scripts]
 email-in-chat = "email_in_chat.cli:main"
 
 [dependency-groups]
-dev = ["pytest>=8,<9", "pytest-asyncio>=1,<2", "ruff>=0.14", "build>=1.2"]
+dev = ["pytest>=8,<9", "pytest-asyncio>=1,<2", "ruff>=0.14", "build>=1.2", "httpx>=0.28,<1"]
 
 [build-system]
 requires = ["hatchling"]
@@ -29,7 +31,7 @@ build-backend = "hatchling.build"
 packages = ["src/email_in_chat"]
 
 [tool.hatch.build]
-exclude = ["/00_工作日志.md", "/local"]
+exclude = ["/00_工作日志.md", "/local", "/.impeccable", "**/node_modules"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -8,7 +8,7 @@ from pathlib import Path, PurePosixPath
 
 def private_path(name: str) -> bool:
     parts = PurePosixPath(name).parts
-    return any(part in {"00_工作日志.md", "local"} for part in parts)
+    return any(part in {"00_工作日志.md", "local", ".impeccable", "node_modules"} for part in parts)
 
 
 def main():
