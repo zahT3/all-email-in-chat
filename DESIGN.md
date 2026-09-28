@@ -24,18 +24,15 @@ colors:
   complete-surface: "#e0ece2"
   complete-border: "#bfd3c6"
   inset-surface: "#f3f5ef"
-  notice-text: "#4a5d4e"
-  error: "#a12c30"
   error-surface: "#fff0ed"
   error-text: "#982f2d"
   error-border: "#eec3bb"
   code-surface: "#f3f5f0"
   code-text: "#354639"
-  code-border: "#e4e8e0"
 typography:
   headline:
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif'
-    fontSize: "27px"
+    fontSize: "26px"
     fontWeight: 650
     lineHeight: 1.35
     letterSpacing: "-0.02em"
@@ -46,53 +43,54 @@ typography:
     lineHeight: 1.35
     letterSpacing: "-0.02em"
   title:
-    fontSize: "17px"
-    lineHeight: 1.5
+    fontSize: "14px"
+    fontWeight: 600
+    lineHeight: 1.55
   body:
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif'
     fontSize: "15px"
-    lineHeight: 1.65
+    lineHeight: 1.55
   label:
     fontSize: "14px"
     fontWeight: 550
   helper:
     fontSize: "12px"
     fontWeight: 400
-    lineHeight: 1.65
+    lineHeight: 1.6
   action:
-    fontSize: "15px"
+    fontSize: "14px"
     fontWeight: 600
-    lineHeight: 1.65
+    lineHeight: 1.55
   path:
-    fontFamily: "ui-monospace, SFMono-Regular, Consolas, monospace"
-    fontSize: "11px"
-    lineHeight: 1.8
+    fontSize: "12px"
+    lineHeight: 1.55
   code:
-    fontFamily: "ui-monospace, SFMono-Regular, Consolas, monospace"
-    fontSize: "0.93em"
+    fontSize: "11px"
+    lineHeight: 1.7
 rounded:
   control: "7px"
   notice: "8px"
-  inset: "9px"
-  surface-mobile: "11px"
+  utility: "5px"
+  code: "6px"
   surface: "14px"
   circle: "50%"
 spacing:
   control-gap: "8px"
   action-gap: "12px"
-  code-inset: "16px"
-  field-grid-gap: "18px"
+  code-inset: "13px"
+  field-grid-gap: "12px"
   section-inset: "20px"
-  field-stack: "22px"
+  field-stack: "20px"
   section-gap: "24px"
-  page-heading-gap: "30px"
+  page-heading-gap: "25px"
+  surface-inset: "32px"
 components:
   button-primary:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.surface}"
     typography: "{typography.action}"
     rounded: "{rounded.control}"
-    padding: "10px 18px"
+    padding: "10px 16px"
   button-primary-hover:
     backgroundColor: "{colors.primary-hover}"
   button-primary-active:
@@ -102,49 +100,54 @@ components:
     textColor: "{colors.secondary-text}"
     typography: "{typography.action}"
     rounded: "{rounded.control}"
-    padding: "10px 18px"
+    padding: "10px 16px"
   button-secondary-hover:
     backgroundColor: "{colors.secondary-hover}"
   button-text:
     backgroundColor: "transparent"
     textColor: "{colors.primary}"
-    rounded: "{rounded.control}"
-    padding: "7px 3px"
+    padding: "8px 0"
   input:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.text}"
     rounded: "{rounded.control}"
-    padding: "9px 12px"
+    padding: "10px 12px"
     width: "100%"
   progress-current:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.surface}"
     rounded: "{rounded.circle}"
-    size: "28px"
+    size: "22px"
   agent-option:
-    rounded: "{rounded.notice}"
-    padding: "15px 13px"
+    rounded: "{rounded.control}"
+    padding: "11px 12px"
   agent-option-selected:
     backgroundColor: "{colors.selected-surface}"
     textColor: "{colors.selected-text}"
   main-surface:
     backgroundColor: "{colors.surface}"
     rounded: "{rounded.surface}"
-  notice:
-    backgroundColor: "{colors.inset-surface}"
-    textColor: "{colors.notice-text}"
+    padding: "32px"
+  notice-success:
+    backgroundColor: "{colors.selected-surface}"
+    textColor: "{colors.selected-text}"
     rounded: "{rounded.notice}"
-    padding: "15px 17px"
+    padding: "16px"
   notice-error:
     backgroundColor: "{colors.error-surface}"
     textColor: "{colors.error-text}"
     rounded: "{rounded.notice}"
-    padding: "15px 17px"
+    padding: "13px 15px"
   code-preview:
     backgroundColor: "{colors.code-surface}"
     textColor: "{colors.code-text}"
-    rounded: "{rounded.control}"
-    padding: "16px"
+    rounded: "{rounded.code}"
+    padding: "13px"
+  language-current:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.selected-text}"
+    rounded: "{rounded.utility}"
+    padding: "5px 10px"
 ---
 
 # Design System: All Email in Chat
@@ -155,17 +158,17 @@ components:
 
 A quiet settings interface gives each task a clear heading, a readable working area, and a visible next action. Warm neutral surroundings and a white working surface carry the structure; graphite text and restrained green accents carry hierarchy and state. The character comes from proportion, practical copy, and precise controls.
 
-System typography supports Chinese-first labels and familiar desktop form behavior. Native fields, radio buttons, checkboxes, and disclosures remain recognizable. The implementation uses CSS surfaces and inline vector icons, with no shipping raster interface assets.
+System typography supports Chinese and English labels and familiar desktop form behavior. Native fields, radio buttons, checkboxes, and disclosures remain recognizable. The implementation uses CSS surfaces and inline vector icons, with no shipping raster interface assets.
 
 This document records the implemented visual system in `frontend/src/style.css` and `frontend/src/main.tsx`, aligned with `PRODUCT.md`. It describes interface behavior; it does not certify provider connectivity, security, or desktop-client compatibility.
 
 **Key Characteristics:**
 
 - Warm neutral canvas, white work surface, and one restrained green accent family.
-- Readable Chinese-first system typography with compact monospace previews.
+- Readable bilingual system typography with compact monospace previews.
 - Native controls, visible keyboard focus, and explicit status text.
 - Flat surfaces defined by borders, spacing, and tonal contrast.
-- A responsive progress rail that becomes a horizontal sequence on small screens.
+- A narrow single-column wizard with horizontal progress and a persistent language switch.
 
 ## Colors
 
@@ -173,89 +176,84 @@ Muted greens sit inside a warm neutral palette. The frontmatter is the normative
 
 ### Primary
 
-- **Deep Leaf** (`primary`) marks the main action, selected radio state, current progress marker, links, and completion details. Darker hover and active tones make button feedback visible.
-- **Focus Green** (`focus`) is the keyboard outline color. It remains distinct from the control border.
-- **Pale Leaf** (`selected-surface`, `complete-surface`) supports selection and completed progress without turning an entire panel green.
+- **Deep Leaf** (`primary`) marks the main action, native checked state, current progress marker, links, and completion icon. Darker hover and active tones make button feedback visible.
+- **Focus Green** (`focus`) is the keyboard outline color, distinct from the control border.
+- **Pale Leaf** (`selected-surface`, `complete-surface`) supports selection, successful checks, and completed progress.
 
 ### Neutral
 
-- **Warm Paper** (`page`) surrounds the application; **White Work Surface** (`surface`) contains the form and its controls.
-- **Graphite** (`text`) carries primary copy; **Sage Gray** (`muted`) carries supporting text, paths, and footer copy.
-- **Quiet Lines** (`line`) separate sections. Input and secondary-button borders have stronger dedicated tokens to keep controls recognizable.
-- **Soft Inset** (`inset-surface`) supports explanatory notices and the sample prompt. Code previews have their own pale background, border, and readable green-gray text.
-- **Clay Error** (`error`, `error-surface`, `error-text`, `error-border`) is a semantic exception for recoverable failures. It is not an additional brand accent.
+- **Warm Paper** (`page`) surrounds the application; **White Work Surface** (`surface`) contains the form and controls.
+- **Graphite** (`text`) carries primary copy; **Sage Gray** (`muted`) carries supporting text and footer copy.
+- **Quiet Lines** (`line`) separate sections. Input and secondary-button borders use stronger dedicated tokens.
+- **Soft Inset** (`inset-surface`) supports the sample prompt. Code previews use their pale background and green-gray text without a border.
+- **Clay Error** (`error-surface`, `error-text`, `error-border`) is a semantic exception for recoverable failures, not an additional brand accent.
 
 **The State Has Words Rule.** Pair state color with a label, icon, or native checked state; color alone never communicates completion or failure.
 
 ## Typography
 
-The body and headings use the operating system sans-serif stack, with Chinese fallbacks, as recorded in the frontmatter. There is no downloaded font or separate display face. Paths and code use the platform monospace stack.
+Body and headings use the operating system sans-serif stack with Chinese fallbacks. There is no downloaded font or separate display face. Paths and code retain native browser monospace styling.
 
-- **Page heading:** the headline role is compact and slightly tight; the mobile variant reduces its size while preserving weight and line height.
-- **Section heading:** the title role introduces configuration previews and subordinate sections. Its bold weight comes from the browser heading default; the stylesheet does not define a separate weight token.
-- **Body and labels:** body text anchors the interface; field labels are slightly smaller and medium weight. Introductory descriptions use 14px text and a maximum measure of 65ch; on mobile they use 13px.
-- **Helper text:** small, regular text stays directly under its field or beside the relevant action. Longer field notes have a maximum measure of 70ch.
-- **Code and paths:** the path role uses compact monospace text. Preview blocks start at 11px with line height 1.7; their nested `code` inherits the relative code size. Both wrap long content.
-- **Mobile fields:** inputs and selects use 16px text at the small breakpoint. Labels remain visually separate from entered values.
+- **Page heading:** compact headline typography, reduced on mobile while preserving weight and line height.
+- **Section heading:** the title role uses an explicit medium-bold weight for subordinate sections.
+- **Body and labels:** body copy anchors the interface; field labels are slightly smaller and medium weight. Heading descriptions remain 14px in both layouts.
+- **Helper text:** small regular copy stays adjacent to its field; field notes have a maximum measure of 65ch.
+- **Code and paths:** separate compact roles wrap long content. Preview blocks scroll vertically after 300px.
+- **Mobile fields:** inputs and selects use 16px text at the small breakpoint.
 
 **The Familiar Type Rule.** Use system sans for tasks and monospace for inspectable configuration; reserve the largest text for the current task heading.
 
 ## Layout
 
-The centered application shell has a maximum width of 1240px and desktop side padding of 40px. An 88px top bar carries the product name and local-session label. The workspace uses a 250px progress rail plus a flexible content column and a minimum height of 730px.
+The header is centered with a maximum width of 1120px, minimum height of 76px, and padding of 20px 32px. The product mark sits opposite the always-visible Chinese/English switch.
 
-The working surface uses content padding of 38px 44px 32px. Most fields stack vertically with a small label/control gap; the email/name row divides at 1.7:1 with an 18px gap. Server/port rows use a flexible server field and a 112px port field. Client choices form two columns. Actions wrap naturally, and the footer uses the same horizontal inset as the content.
+The centered wizard has a maximum width of 608px, including padding of 24px 24px 40px. A horizontal three-step sequence sits above the single working surface, separated by 26px. The surface uses the frontmatter padding and radius without a fixed minimum height. The footer sits below it.
 
-| Viewport rule | Implemented behavior |
-| --- | --- |
-| At least 1500px | Add 26px top padding to the application shell. |
-| At most 950px | Reduce shell sides to 24px and the rail to 200px; content becomes 32px 28px; client choices stack; the account summary may wrap. |
-| At most 680px | Use 16px shell sides, a 70px top bar, and one vertical workspace. Progress becomes a compact horizontal sequence. Hide secondary sidebar copy; keep the named steps. Use content padding of 26px 20px and a smaller surface radius. |
-| At most 680px, forms | Stack general field rows. Keep server/port rows paired with an 88px port field and 12px gap. Grow action buttons to fill available row width. Stack the demo entry and wrap long account identifiers and paths. |
+Fields stack with a 7px label/control gap and the field-stack spacing. Server/port pairs use a flexible server field, an 84px port field, and a 12px gap. Agent choices use two columns with an 8px gap. Main actions fill the content width.
 
-The local-session header label becomes an icon at the small breakpoint; the footer retains the text explaining that the wizard runs locally. The working surface remains a single continuous form area rather than a collection of equal cards.
+At viewport widths of at most 540px, header padding becomes 16px 20px with a 68px minimum height. Wizard padding becomes 14px 16px 28px; surface padding becomes 24px 20px while retaining its radius. Progress stays horizontal with 22px separation below. Agent choices stack; server/port pairs retain an 80px port field and an 8px gap. Long addresses and paths wrap.
 
 ## Elevation & Depth
 
-The implemented interface has no box shadows, gradients, or backdrop effects. White and lightly tinted surfaces create depth through tonal contrast, thin borders, and spacing. Keyboard outlines express focus and do not imply an elevated surface.
+The interface has no box shadows, gradients, or backdrop effects. White and lightly tinted surfaces create depth through tonal contrast, thin borders, and spacing. Keyboard outlines express focus and do not imply an elevated surface.
 
 **The Flat Surface Rule.** Use borders and tonal changes to distinguish working areas and states; do not add decorative elevation to this system.
 
 ## Shapes
 
-Controls have gently curved corners; notices and selectable client rows use a slightly broader curve. Larger working surfaces have the broadest corners, reduced on mobile. Account summaries and prompt panels use the inset radius. The radius tokens are normative.
+Controls and selectable client rows share gently curved corners. Notices and the sample prompt use the notice radius; the working surface retains its broader radius on mobile. Password visibility and language controls use the smaller utility radius; code blocks use the code radius.
 
-Borders are thin and continuous. Circular markers belong to progress and small status indicators. The small monochrome inline icons reinforce familiar meanings such as mail, device, lock, back, next, and completion. They are supporting marks, not hero illustrations or a new logo asset.
+Borders are thin and continuous. Circular progress markers and small monochrome inline icons support familiar meanings without becoming illustrations.
 
 ## Components
 
 ### Buttons
 
-Compact, direct actions use a solid primary, bordered secondary, or text-only treatment. Standard buttons have a minimum height of 43px, an 8px icon gap, and the action typography. Text buttons use a 40px minimum height and medium weight; the prompt-copy utility is a smaller 36px exception.
+Solid primary and bordered secondary actions have a 44px minimum height, an 8px icon gap, and the action typography. Text actions use 13px type and a 36px minimum height; the Back control has a 28px minimum height.
 
-Primary hover and active states darken the fill. Secondary hover uses a pale neutral tint. Text-button hover adds an underline. Color and background transitions last 0.15s with `ease`; reduced-motion preference disables transitions. Disabled buttons use 0.58 opacity and cannot receive pointer events. Labels describe the next operation rather than a generic continuation.
+Primary hover and active states darken the fill. Secondary hover uses a pale neutral tint. Text and Back hover underline and darken. Disabled buttons use 0.6 opacity and the waiting cursor. There is no button transition.
 
 ### Inputs, selects, and disclosures
 
-Native inputs and selects fill their field width, with a minimum height of 44px and a visible border that strengthens on hover. The containing label names the control, and helper text remains beside the field. Password fields preserve the native password affordance. Native validation attributes describe required values, input formats, and limits.
+Inputs and selects fill their field width with a 44px minimum height and a border that strengthens on hover. A password visibility button occupies the field's right edge. Checkboxes use native 16px controls; radios retain native sizing and primary accent.
 
-Checkboxes and radios remain native 17px controls with the primary accent. Client choices wrap a radio inside a padded label; selected rows combine an accent border, pale green fill, and checked radio. Advanced settings use native `details`/`summary` with top and bottom rules and a chevron that rotates when open. This is disclosure, not a separate route.
+Advanced settings use native `details`/`summary` between thin rules. In the current wizard, known presets collapse server fields, while manual configuration opens them. Only `details::details-content` receives a 160ms discrete transition, gated by `prefers-reduced-motion: no-preference`.
 
-### Keyboard focus and feedback
+### Language and progress navigation
 
-Interactive elements receive a 3px focus outline with a 3px offset. Page changes focus the new heading programmatically; that heading suppresses its outline. Errors appear in a tinted notice with `role="alert"`, receive programmatic focus, and use a 2px error outline with a 2px offset. Loading and busy text use `role="status"`. These are implementation facts, not a claim of a completed accessibility audit.
+The header language group uses two text buttons with `aria-pressed`; the selected language sits on white within a muted rounded container. It remains visible at all widths and across steps.
 
-### Progress navigation
+The three named steps are an ordered, non-clickable list in a labelled navigation region. The current step exposes `aria-current="step"`. All markers are 22px circles. Current markers use a solid accent; completed markers combine a check with pale green; future markers retain an outline. Thin lines connect the steps.
 
-Three named steps form an ordered, non-clickable progress list inside a labelled navigation region. The current step exposes `aria-current="step"`. Current markers use a solid accent fill; completed markers show a check inside a pale green circle; future markers retain an outline. Markers are 28px on desktop and 24px on small screens.
+### Working surface and feedback
 
-### Working surface and inset panels
+The white panel carries one task heading and its current form. The first view shows email entry, with returning accounts and provider help below. Provider selection and credentials follow; exact local domain matching has a manual fallback. Ordinary onboarding has no demo action. Explicit developer mode retains a labelled amber notice above the surface and isolated output.
 
-The main white panel carries the task heading, form, and footer behind a single thin border. Account summaries, notices, and the sample prompt use flat tints and compact padding rather than shadows. A demo banner sits above the content and remains present across demo steps. Long identifiers and notice content wrap instead of expanding the panel.
+Interactive elements receive a 3px focus outline with a 3px offset. Page changes focus the heading, whose outline is suppressed. Errors use `role="alert"` and receive programmatic focus; there is no separate error-outline style. Loading and busy copy use `role="status"`. Successful IMAP checks use an icon and readable text in a pale green inset.
 
-### Configuration preview and completion
+### Agent choice, preview, and completion
 
-The preview separates the destination, inspectable code block, explanation, and explicit write action. Paths and code wrap at narrow widths. A completion mark appears with precise text identifying whether an actual configuration or an isolated demo file was saved; follow-up instructions still direct the user to verify tools in their desktop client. An IMAP result, SMTP status, saved configuration, and client verification remain separate statements.
+Agent choices put a native radio inside a padded label. Checked rows combine a stronger green border, pale fill, and selected text. The preview separates the wrapping destination, disclosed code, explanation, and explicit apply action. Completion pairs an icon and precise saved-configuration copy with a sample prompt and follow-up actions. Read-only IMAP checks, SMTP delivery, saved configuration, and desktop-client verification remain distinct statements.
 
 ## Do's and Don'ts
 

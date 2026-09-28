@@ -6,15 +6,15 @@ Verified locally on 2026-09-28, macOS arm64, Python 3.12.12. Runtime versions:
 | Layer | Result | Scope |
 | --- | --- | --- |
 | Formatting and lint | Passed | Ruff checks and format validation of project source, tests and installed smoke script |
-| Project test suite | **118 passed** | Config isolation and permissions, credential mocks, recipient policy, bridge denial and aliases, client merge behavior, CLI and real stdio subprocesses |
-| Six generated client profiles | Passed through MCP SDK | Generated command → package entrypoint → bridge → demo backend → account discovery and synthetic read; these are part of the 118 tests |
+| Project test suite | **121 passed** | Config isolation and permissions, credential mocks, recipient policy, bridge denial and aliases, client merge behavior, CLI and real stdio subprocesses |
+| Six generated client profiles | Passed through MCP SDK | Generated command → package entrypoint → bridge → demo backend → account discovery and synthetic read; these are part of the 121 tests |
 | Published backend | Empty-account handshake passed | Actual installed Wh1isper 1.9.1, isolated config; no live mailbox |
 | Distribution | Wheel and sdist built | Python package build; wheel installed as a PATH command |
 | Installed CLI outside source tree | Passed | Temporary working directory; doctor, simulated search/read/draft, send preview, client install preview; [machine-readable result](installed-smoke.json) |
 | Four upstreams | Scoped tests passed | [Separate audit](research/README.md); not part of this project's test count |
 | GitHub Actions (0.1.0 publication) | **Passed: 101 tests, lint, formatting, build** | Linux runner; [initial publication run](https://github.com/zahT3/all-email-in-chat/actions/runs/36389912274), commit `3cb0c62` |
 | Setup UI build | Passed | TypeScript, Vite production build, Prettier and packaged runtime dependency licenses |
-| Setup UI security and recovery | 17 tests passed | Session/token/Origin/Host/CSRF, body limits, path traversal, real MCP demo, redaction, metadata edits, keyring failure, client conflicts and timeout; included in 118 |
+| Setup UI security and recovery | 19 tests passed | Session/token/Origin/Host/CSRF, body limits, path traversal, real MCP demo, redaction, metadata edits, keyring failure, client conflicts and timeout; included in 121 |
 | Setup UI browser flow | Passed with synthetic data | Desktop 1280px / mobile 390px, demo connection → Kimi profile → preview → isolated configuration write; metadata editor checked with reserved example.test values |
 | Installed UI outside source tree | Passed | Packaged HTML/JS/licenses, authenticated session, demo connection and isolated client install, using the PATH-installed wheel |
 | Actual desktop UIs | Not run | Official configuration documentation checked; product-version acceptance remains pending |
@@ -28,13 +28,14 @@ cd frontend
 npm ci
 npm run build
 npm run format:check
+npm test
 cd ..
 uv sync --locked --python 3.12
 uv run ruff check src tests scripts
 uv run ruff format --check src tests scripts
 uv run pytest -q
 uv build
-uv tool install --python 3.12 dist/all_email_in_chat-0.2.0-py3-none-any.whl
+uv tool install --python 3.12 dist/all_email_in_chat-0.3.0-py3-none-any.whl
 python3 scripts/smoke_installed.py
 ```
 
@@ -48,3 +49,12 @@ Two recovery findings (editing mistyped server settings and actionable client
 configuration conflicts) were fixed and scored resolved. This is not a security
 audit or real-provider/desktop-product acceptance. The suite currently emits one
 Starlette TestClient deprecation warning about its httpx compatibility fallback.
+
+
+## 0.3.0 email-first wizard
+
+- 121 Python tests and 3 Node frontend tests passed. New coverage checks provider-specific default ports, blocked OAuth-only presets, stable safe error codes, exact-domain matching against lookalikes, aliases and locale completeness.
+- Browser checks at 1280px and 390px: Chinese / English entry and connection pages; iCloud preset with SMTP 587; Gmail conditions; Outlook suppression of password fields; no horizontal overflow on the checked mobile page. Switching language preserves the address and translates existing errors.
+- Actual demo MCP check → Kimi config preview → isolated apply passed. A separate test process replaced credential storage with a failing stub: two browser submissions retained one account, showed recovery in both languages, and left no test password in account TOML. This did not access the OS keyring.
+- Independent fresh screenshot/source review returned **ship for user review** across six supplied captures. Mechanical detector returned no findings. These checks are not real provider, SMTP, security-audit or desktop-product acceptance.
+- The installed 0.3.0 wheel passed the source-independent CLI and UI smoke checks recorded in [installed-smoke.json](installed-smoke.json). No live mailbox or real desktop settings were modified.

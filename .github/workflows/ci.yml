@@ -18,7 +18,7 @@ jobs:
           node-version: "24"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - run: npm ci && npm run format:check && npm run build
+      - run: npm ci && npm run format:check && npm test && npm run build
         working-directory: frontend
       - run: git diff --exit-code -- src/email_in_chat/static
       - run: uv sync --locked --python 3.12
@@ -27,4 +27,4 @@ jobs:
       - run: uv run pytest -q
       - run: uv build
       - run: python3 scripts/check_publication.py
-      - run: uv run --no-project --with ./dist/all_email_in_chat-0.2.0-py3-none-any.whl python scripts/smoke_installed.py
+      - run: uv run --no-project --with ./dist/all_email_in_chat-0.3.0-py3-none-any.whl python scripts/smoke_installed.py

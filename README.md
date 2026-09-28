@@ -6,13 +6,15 @@
 
 这是一个可安装的 Python CLI、本地 MCP 服务和图形接入向导。当前提供多账号配置、系统钥匙串凭证、只读/草稿/管理权限、客户端配置生成和离线演示。底层复用锁定版本的 [Wh1isper/mcp-email-server](https://github.com/Wh1isper/mcp-email-server)，另审查了三个项目，记录在[选型报告](docs/research/README.md)。
 
-**状态：0.2.0 MVP，含本地接入向导。** 自动化测试验证了配置、权限和真实 stdio 协议；尚未通过真实邮箱、各桌面产品 UI 或 Windows/Linux 的端到端验收。OAuth、远程托管和后台定时执行尚未实现。“All”是项目方向，不代表所有邮箱已经兼容。
+**状态：0.3.0 MVP，含中英文接入向导。** 自动化测试验证了配置、权限和真实 stdio 协议；尚未通过真实邮箱、各桌面产品 UI 或 Windows/Linux 的端到端验收。OAuth、远程托管和后台定时执行尚未实现。“All”是项目方向，不代表所有邮箱已经兼容。
 
-## 图形接入向导（0.2.0）
+## 图形接入向导（中文 / English）
 
-安装后运行 `email-in-chat ui`，在浏览器中完成 **添加邮箱 → 测试 IMAP 连接 → 预览并写入 Agent 配置**。支持阿里企业邮箱等预设，密码只在本机输入并存入系统钥匙串。新配置默认只读。
+安装后运行 `email-in-chat ui`，按 **输入邮箱 → 匹配服务商、保存并测试 → 连接 Agent** 完成配置。右上角可随时切换中文 / English；服务器和端口放在高级设置中。密码只在本机输入并存入系统钥匙串，新配置默认只读。
 
-首次可选择模拟邮箱，不需要凭证；演示模式只写独立测试配置，不修改真实 Agent 设置。安装用户无需 Node。详见[本地向导说明](docs/local-ui.md)。
+内置阿里企业/个人、QQ、网易 163/126/yeah.net、Gmail、iCloud、PrivateEmail 共 9 个服务器预设及自定义设置。Gmail 仅支持符合条件的应用专用密码；Outlook 明确显示 OAuth 尚未接入。服务商预设不代表真实账号已验收，详见[服务商与认证说明](docs/providers.md)。安装用户无需 Node。
+
+模拟邮箱已移出正常向导入口，保留为开发测试工具。详见[本地向导说明](docs/local-ui.md)。
 
 ## 它和 MCP 的关系
 
@@ -27,7 +29,7 @@ flowchart LR
 
 Agent 理解“找出未回复的客户邮件并起草回复”；MCP 负责发现和调用工具；我们的服务负责把允许的操作交给邮箱后端。MCP 不会自行提供邮箱认证、定时运行或发信送达保证。
 
-## 先用模拟邮箱试一遍
+## 安装并连接邮箱
 
 需要 [uv](https://docs.astral.sh/uv/) 和 Python 3.12 或更高版本。从 GitHub 安装：
 
@@ -35,7 +37,11 @@ Agent 理解“找出未回复的客户邮件并起草回复”；MCP 负责发�
 uv tool install --python 3.12 git+https://github.com/zahT3/all-email-in-chat.git
 ```
 
-或者下载源码后在项目根目录安装并尝试演示：
+运行 `email-in-chat ui`，在本机页面填写真实邮箱。
+
+### 开发者：离线测试
+
+模拟邮箱用于验证工具调用、权限和错误恢复，不需要真实凭证。下载源码后可在项目根目录安装并测试：
 
 ```sh
 uv tool install --python 3.12 .
@@ -86,6 +92,9 @@ email-in-chat messages search --account work --limit 5
 | `aliyun-enterprise` | 阿里企业邮箱 IMAP 993 / SMTP 465 | 官方端点已核对，真实账号待测 |
 | `aliyun-personal` | 阿里个人邮箱 IMAP 993 / SMTP 465 | 官方端点已核对，真实账号待测 |
 | `privateemail` | PrivateEmail IMAP 993 / SMTP 465 | 已有集成采用相同协议，本项目真实账号待测 |
+| `qq`、`netease-163`、`netease-126`、`netease-yeah` | IMAP 993 / SMTP 465；授权码 | 预设参数核对，真实账号待测 |
+| `gmail` | 应用专用密码；需要两步验证及账号许可 | 参数及认证条件核对，真实账号待测 |
+| `icloud` | App 专用密码；IMAP 993 / SMTP 587 STARTTLS | Apple 官方参数核对，真实账号待测 |
 | `custom` | 自定义 IMAP/SMTP 主机；SMTP 587 使用 STARTTLS | 仅支持密码或应用专用密码，逐服务商验证 |
 
 自定义示例：
@@ -95,7 +104,7 @@ email-in-chat accounts add personal --provider custom --email you@example.com \
   --imap-host imap.example.com --smtp-host smtp.example.com --smtp-port 587
 ```
 
-参考：[阿里企业邮箱](https://help.aliyun.com/zh/document_detail/36576.html)、[阿里个人邮箱](https://help.aliyun.com/zh/document_detail/465790.html)。需要 OAuth 的 Gmail/Outlook 等账号不能因为支持 IMAP 就视为已适配；本版本没有 OAuth 登录与 token 刷新。
+参考：[阿里企业邮箱](https://help.aliyun.com/zh/document_detail/36576.html)、[阿里个人邮箱](https://help.aliyun.com/zh/document_detail/465790.html)。Gmail 仅提供有条件的应用专用密码路径；Outlook 等仅支持 OAuth 的账号暂不可用。本版本没有 OAuth 登录与 token 刷新。完整预设与来源见[服务商说明](docs/providers.md)。
 
 ## 操作权限
 
@@ -142,4 +151,4 @@ uv build
 - [贡献说明](CONTRIBUTING.md)与[第三方说明](THIRD_PARTY_NOTICES.md)。本项目代码使用 MIT 许可证。
 - [Agent 使用指引](skills/email-in-chat/SKILL.md)：供支持 Skill 的客户端选用；MCP 连接本身不依赖它。
 
-English overview: a local-first email MCP gateway with one account configuration, OS keyring credentials, enforced operation modes, client configuration helpers, and a credential-free demo. The pinned IMAP/SMTP runtime is `mcp-email-server==1.9.1`. Desktop profiles are documented and protocol-tested, but actual desktop-agent UI and live provider acceptance tests are still pending. This release does not implement OAuth, hosting, scheduling, or a universal mailbox API.
+English overview: a local-first email MCP gateway with one account configuration, OS keyring credentials, enforced operation modes, client configuration helpers, a Chinese / English setup wizard, and an opt-in developer demo. The pinned IMAP/SMTP runtime is `mcp-email-server==1.9.1`. Desktop profiles are documented and protocol-tested, but actual desktop-agent UI and live provider acceptance tests are still pending. This release does not implement OAuth, hosting, scheduling, or a universal mailbox API.

@@ -331,3 +331,18 @@ def test_shared_writeable_parent_is_rejected(account_config):
             config.load_config(account_config)
     finally:
         account_config.parent.chmod(0o700)
+
+
+def test_provider_specific_ports_and_explicit_overrides(tmp_path):
+    path = tmp_path / "private" / "accounts.toml"
+    config.init_config(path)
+    config.add_account(path, name="apple", email="user@icloud.com", provider="icloud")
+    apple = config.load_config(path)["accounts"][0]
+    assert (apple["imap_host"], apple["imap_port"]) == ("imap.mail.me.com", 993)
+    assert (apple["smtp_port"], apple["smtp_starttls"]) == (587, True)
+    config.add_account(
+        path, name="custom-port", email="u@example.test", provider="icloud", smtp_port=465
+    )
+    assert config.load_config(path)["accounts"][1]["smtp_starttls"] is False
+    with pytest.raises(config.ConfigError, match="Unknown provider"):
+        config.add_account(path, name="oauth", email="u@outlook.com", provider="outlook")

@@ -20,7 +20,7 @@ A Python CLI runs locally. Mailbox credentials belong in the operating system ke
 
 ## Capabilities and Constraints
 
-IMAP/SMTP password and app-password accounts; Aliyun enterprise, Aliyun personal, PrivateEmail and custom server presets. No OAuth, hosted service or background automation yet. Read, draft and manage policies are enforced by the MCP bridge. The UI preserves existing policy; new configurations default to read. Demo data and demo client configuration remain isolated. An IMAP test does not establish SMTP delivery or desktop-agent compatibility.
+IMAP/SMTP password and app-password accounts; nine provider presets and manual servers; the catalog separates OAuth-only accounts from implemented password authentication. No OAuth, hosted service or background automation yet. Read, draft and manage policies are enforced by the MCP bridge. The UI preserves existing policy; new configurations default to read. Demo data and demo client configuration remain isolated and are opt-in developer tools, absent from normal onboarding. An IMAP test does not establish SMTP delivery or desktop-agent compatibility.
 
 ## Evidence on Hand
 
@@ -28,4 +28,4 @@ Protocol and configuration tests, synthetic email fixtures, public upstream rese
 
 ## Implementation choices
 
-React and TypeScript, packaged static assets served by Python. Chinese-first setup copy. These are implementation defaults for the first wizard; product branding and additional languages remain open.
+React and TypeScript, packaged static assets served by Python. Complete Chinese and English setup copy with a persistent language switch. Email-first progressive setup follows familiar desktop email account wizards, as requested by the user.

@@ -19,7 +19,6 @@ from starlette.routing import Route
 
 from email_in_chat.clients import ClientConfigError, client_profiles, install_config, render_config
 from email_in_chat.config import (
-    PROVIDERS,
     ConfigError,
     add_account,
     aliases,
@@ -28,6 +27,7 @@ from email_in_chat.config import (
     materialize_backend,
     store_credentials,
 )
+from email_in_chat.providers import PROVIDER_CATALOG
 
 STATIC = Path(__file__).parent / "static"
 SESSION_SECONDS = 30 * 60
@@ -35,7 +35,14 @@ BODY_LIMIT = 16_384
 
 
 class UIError(ConfigError):
-    """Safe, fixed user-facing text; never include provider exceptions."""
+    """Safe text plus a stable code for frontend localization."""
+
+    def __init__(
+        self, message: str, code: str = "operation_failed", *, target_path: str | None = None
+    ):
+        super().__init__(message)
+        self.code = code
+        self.target_path = target_path
 
 
 async def check_connection(path: Path, account: str) -> dict:
@@ -44,7 +51,7 @@ async def check_connection(path: Path, account: str) -> dict:
 
     data = await asyncio.to_thread(load_config, path)
     if account not in aliases(data):
-        raise UIError("请选择已配置的邮箱。")
+        raise UIError("请选择已配置的邮箱。", "select_account")
     # Always strip outgoing endpoints and use the read tool gate for diagnostics.
     native = await asyncio.to_thread(materialize_backend, path, {**data, "mode": "read"})
     try:
@@ -58,10 +65,13 @@ async def check_connection(path: Path, account: str) -> dict:
                 demo=data["demo"],
             )
     except TimeoutError:
-        raise UIError("连接超时。请检查网络、服务器地址及 IMAP 开关后重试。") from None
+        raise UIError(
+            "连接超时。请检查网络、服务器地址及 IMAP 开关后重试。", "connection_timeout"
+        ) from None
     if result.isError:
         raise UIError(
-            "收信连接未通过。请检查客户端专用密码、IMAP 权限、服务器地址和网络；可重新保存密码后重试。"
+            "收信连接未通过。请检查客户端专用密码、IMAP 权限、服务器地址和网络；可重新保存密码后重试。",
+            "connection_failed",
         )
     payload = result.structuredContent
     if payload is None:
@@ -73,7 +83,7 @@ async def check_connection(path: Path, account: str) -> dict:
     if not isinstance(folders, list) or any(
         not isinstance(item, dict) or not isinstance(item.get("name"), str) for item in folders
     ):
-        raise UIError("服务器返回了无法确认的目录结果；尚未判定连接成功。")
+        raise UIError("服务器返回了无法确认的目录结果；尚未判定连接成功。", "invalid_folders")
     return {
         "account": account,
         "demo": data["demo"],
@@ -110,11 +120,18 @@ class LocalUI:
 
     async def guard(self, request: Request, call_next):
         if request.headers.get("host") != self.origin.removeprefix("http://"):
-            response = JSONResponse({"error": "Host rejected"}, status_code=403)
+            response = JSONResponse(
+                {"error": "Host rejected", "code": "request_rejected"}, status_code=403
+            )
         elif request.headers.get("origin") not in (None, self.origin):
-            response = JSONResponse({"error": "Origin rejected"}, status_code=403)
+            response = JSONResponse(
+                {"error": "Origin rejected", "code": "request_rejected"}, status_code=403
+            )
         elif request.headers.get("sec-fetch-site") == "cross-site":
-            response = JSONResponse({"error": "Cross-site request rejected"}, status_code=403)
+            response = JSONResponse(
+                {"error": "Cross-site request rejected", "code": "request_rejected"},
+                status_code=403,
+            )
         else:
             response = await call_next(request)
         response.headers.update(
@@ -136,7 +153,7 @@ class LocalUI:
         name = request.path_params["asset"] or "index.html"
         target = (STATIC / name).resolve()
         if not target.is_relative_to(STATIC.resolve()) or not target.is_file():
-            return JSONResponse({"error": "Not found"}, status_code=404)
+            return JSONResponse({"error": "Not found", "code": "not_found"}, status_code=404)
         return FileResponse(target)
 
     async def body(self, request: Request) -> dict:
@@ -159,9 +176,15 @@ class LocalUI:
         action = request.path_params["action"]
         try:
             if time.monotonic() >= self.expires:
-                return JSONResponse({"error": "会话已过期，请重新运行 email-in-chat ui。"}, 401)
+                return JSONResponse(
+                    {
+                        "error": "会话已过期，请重新运行 email-in-chat ui。",
+                        "code": "session_expired",
+                    },
+                    401,
+                )
             if request.method == "POST" and request.headers.get("origin") != self.origin:
-                return JSONResponse({"error": "Origin required"}, 403)
+                return JSONResponse({"error": "Origin required", "code": "request_rejected"}, 403)
             if action == "session" and request.method == "POST":
                 body = await self.body(request)
                 token = body.get("token")
@@ -170,7 +193,13 @@ class LocalUI:
                     or not isinstance(token, str)
                     or not secrets.compare_digest(token, self.bootstrap)
                 ):
-                    return JSONResponse({"error": "启动链接已使用或无效，请重新启动向导。"}, 401)
+                    return JSONResponse(
+                        {
+                            "error": "启动链接已使用或无效，请重新启动向导。",
+                            "code": "invalid_session",
+                        },
+                        401,
+                    )
                 self.used = True
                 response = JSONResponse({"csrf": self.csrf})
                 response.set_cookie(
@@ -183,13 +212,15 @@ class LocalUI:
                 )
                 return response
             if not secrets.compare_digest(request.cookies.get(self.cookie, ""), self.session):
-                return JSONResponse({"error": "请使用终端生成的完整链接打开向导。"}, 401)
+                return JSONResponse(
+                    {"error": "请使用终端生成的完整链接打开向导。", "code": "session_required"}, 401
+                )
             if request.method == "GET" and action == "state":
                 return JSONResponse({**await asyncio.to_thread(self.state), "csrf": self.csrf})
             if request.method != "POST":
-                return JSONResponse({"error": "Not found"}, 404)
+                return JSONResponse({"error": "Not found", "code": "not_found"}, 404)
             if not secrets.compare_digest(request.headers.get("x-eic-csrf", ""), self.csrf):
-                return JSONResponse({"error": "CSRF rejected"}, 403)
+                return JSONResponse({"error": "CSRF rejected", "code": "request_rejected"}, 403)
             body = await self.body(request)
             async with self.lock:
                 if action == "check":
@@ -200,22 +231,31 @@ class LocalUI:
                 result = await asyncio.to_thread(self.mutate, action, body)
             return JSONResponse(result)
         except UIError as exc:
-            return JSONResponse({"error": str(exc)}, 400)
+            return JSONResponse(
+                {"error": str(exc), "code": exc.code, "target_path": exc.target_path}, 400
+            )
         except (ConfigError, ValueError, TypeError):
             # Validation errors may contain upstream input; return only our bounded messages.
             return JSONResponse(
                 {
+                    "code": "client_failed"
+                    if action in {"preview", "install"}
+                    else "validation_failed",
                     "error": (
                         "客户端配置操作未完成。请重新预览；检查同名条目、文件格式和权限后再试。"
                         if action in {"preview", "install"}
                         else "操作未完成，请检查填写内容。账号若已创建，可选择它并编辑服务器或重新保存密码后重试。"
-                    )
+                    ),
                 },
                 400,
             )
         except Exception:
             return JSONResponse(
-                {"error": "操作未完成。请检查系统钥匙串或配置文件权限后重试。"}, 500
+                {
+                    "error": "操作未完成。请检查系统钥匙串或配置文件权限后重试。",
+                    "code": "system_error",
+                },
+                500,
             )
 
     def profiles(self) -> list[dict]:
@@ -242,7 +282,7 @@ class LocalUI:
                 if data
                 else []
             ),
-            "providers": PROVIDERS,
+            "providers": PROVIDER_CATALOG,
             "clients": self.profiles(),
             "config_path": str(self.path),
         }
@@ -309,9 +349,9 @@ class LocalUI:
                 else Path(os.path.expandvars(profile["target_path"])).expanduser()
             )
             if action == "install" and self.previews.get(client) != body.get("preview_token"):
-                raise UIError("配置预览已失效或尚未生成，请重新点击预览后再写入。")
+                raise UIError("配置预览已失效或尚未生成，请重新点击预览后再写入。", "stale_preview")
             if action == "install" and client not in self.previews:
-                raise UIError("配置预览已失效或尚未生成，请重新点击预览后再写入。")
+                raise UIError("配置预览已失效或尚未生成，请重新点击预览后再写入。", "stale_preview")
             try:
                 result = install_config(
                     client, self.command, argv, target, apply=action == "install"
@@ -319,11 +359,15 @@ class LocalUI:
             except ClientConfigError:
                 raise UIError(
                     f"无法合并客户端配置：{target}。请检查已有 email-in-chat 条目是否与当前配置冲突、"
-                    "文件格式是否有效，以及是否为符号链接。向导没有覆盖原设置；处理后重新预览。"
+                    "文件格式是否有效，以及是否为符号链接。向导没有覆盖原设置；处理后重新预览。",
+                    "client_conflict",
+                    target_path=str(target),
                 ) from None
             except OSError:
                 raise UIError(
-                    f"无法写入客户端配置：{target}。请检查目录权限或磁盘空间，处理后重新预览。"
+                    f"无法写入客户端配置：{target}。请检查目录权限或磁盘空间，处理后重新预览。",
+                    "client_write_failed",
+                    target_path=str(target),
                 ) from None
             result["demo"] = data["demo"]
             if action == "preview":
@@ -342,6 +386,7 @@ class LocalUI:
         except ConfigError:
             return {
                 "credential_saved": False,
+                "code": "credential_failed",
                 "state": self.state(),
                 "error": "账号资料已保留，但密码未完整保存。请检查系统钥匙串，选择该账号并重新保存密码。",
             }

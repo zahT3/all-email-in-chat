@@ -8,15 +8,34 @@ email-in-chat ui
 
 也可以使用 `email-in-chat --config /absolute/path/accounts.toml ui` 指定独立配置；加 `--no-open` 只在终端显示启动链接。
 
-1. **添加邮箱**：选择阿里企业邮箱、阿里个人邮箱、PrivateEmail，或填写自定义 IMAP/SMTP 服务器。密码在本机页面填写，由 Python 服务写入操作系统钥匙串。新配置默认只读。
-2. **测试连接**：实际调用受只读权限限制的 `list_mailboxes`，验证 IMAP 登录和目录返回。不读正文、不修改已读状态、不发送测试邮件；SMTP 仍标为未测试。
-3. **接入 Agent**：选择客户端，先看配置片段和目标路径，再明确点击写入。只合并本项目条目，保留其他配置并创建备份。遇到不同的同名条目会拒绝覆盖。最后在客户端新会话中确认工具加载。
+右上角可随时切换中文 / English。初始语言跟随浏览器，选择保存在浏览器本地；切换时保留正在填写的表单。
 
-已有账号可以选中后测试，点击“编辑邮箱与服务器”修正地址、端口及发件信息，或展开“更新客户端专用密码”重试凭证保存。如果系统钥匙串写入失败，账号资料会保留，页面会明确显示未完成；不要重复创建同名账号。
+1. **邮箱**：输入地址，仅在本机精确匹配服务商预设。企业邮箱自有域名需手动选择服务商，未知域名进入手动设置。
+2. **连接**：查看所选服务商的认证说明，填写授权码或客户端专用密码；服务器、端口和账号简称放在高级设置中。保存到系统钥匙串后立即测试 IMAP 登录和目录返回，不读正文、不标记已读、不发信。SMTP 未测试。
+3. **Agent**：选择客户端，先预览目标路径及配置，再点击写入。保留其他配置并备份原文件，遇到同名冲突停止。重启客户端，在新对话中确认工具已加载。
 
-## 离线体验
+已有邮箱在首页列表中，可直接测试或修改设置和密码。钥匙串保存失败会保留账号资料并显示恢复说明；再次提交会更新原账号，不会重复创建。错误提示也随语言切换。
 
-首次打开时可以点击“使用模拟邮箱”。向导在当前配置旁创建独立的 `demo-<random>/accounts.toml`，使用虚构邮件后端；Agent 配置写入该演示目录的 `demo-clients/`，不会修改真实客户端设置。演示文件会保留以便检查。重新运行不带演示路径的 `email-in-chat ui` 即可接入真实邮箱。
+可配置的 9 个服务商预设、手动设置及 OAuth 限制详见[服务商说明](providers.md)。端点预设不代表真实账号已经验收。
+
+## 开发者：模拟邮箱
+
+普通向导不再展示模拟入口。模拟后端供自动化测试、贡献者学习和无凭证回归检查使用，保留虚构邮件和隔离的客户端写入路径。显式开启：
+
+```sh
+email-in-chat --config ~/.config/all-email-in-chat-demo/accounts.toml init --demo
+email-in-chat --config ~/.config/all-email-in-chat-demo/accounts.toml ui
+```
+
+页面始终标注开发测试模式；客户端配置只写该配置旁的 `demo-clients/`，不会修改真实 Agent 设置。测试通过不能替代真实邮箱或桌面客户端验收。
+
+## 设计参考
+
+采用 [Thunderbird 的账号匹配及手动回退流程](https://support.mozilla.org/en-US/kb/automatic-account-configuration) 与 [Apple Internet Accounts 的邮箱优先入口](https://support.apple.com/en-sg/guide/mac-help/mh43559/mac)。本项目只实现本机域名预设匹配，不提供 Thunderbird 的完整自动发现能力。
+
+## English quick start
+
+Run `email-in-chat ui`, then choose **English** in the header. Enter your email, confirm the matched provider (or use manual setup), enter an app password, and save and test. After the IMAP check succeeds, select an agent, preview its configuration and apply it. Restart the agent and confirm that the tools load. Advanced server settings are optional for known providers. The developer demo is opt-in via a separate `init --demo` configuration as shown above.
 
 ## 本机边界
 

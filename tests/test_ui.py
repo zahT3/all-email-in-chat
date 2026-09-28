@@ -276,6 +276,8 @@ def test_client_conflict_and_stale_preview_recovery(setup):
     assert response.status_code == 400
     assert "冲突" in response.json()["error"]
     assert str(target) in response.json()["error"]
+    assert response.json()["target_path"] == str(target)
+    assert response.json()["code"] == "client_conflict"
     assert "密码" not in response.json()["error"]
     assert target.read_bytes() == before
     response = post("install", {"client": "cursor", "preview_token": "stale"})
@@ -293,3 +295,31 @@ async def test_check_timeout_is_not_success(tmp_path, monkeypatch):
     monkeypatch.setattr("email_in_chat.bridge.invoke_tool", invoke)
     with pytest.raises(ui.UIError, match="连接超时"):
         await ui.check_connection(path, "work")
+
+
+def test_catalog_distinguishes_presets_and_oauth_requirement(setup):
+    server, client = setup
+    login(server, client)
+    catalog = client.get(server.prefix + "/api/state").json()["providers"]
+    assert catalog["qq"]["domains"] == ["qq.com"]
+    assert catalog["icloud"]["smtp_port"] == 587
+    assert catalog["gmail"]["auth"] == "google_app_password"
+    assert catalog["outlook"]["available"] is False
+    assert catalog["outlook"]["auth"] == "oauth_required"
+    assert catalog["aliyun-enterprise"]["domains"] == []
+    assert all(p["name"]["en"] and p["name"]["zh"] for p in catalog.values())
+
+
+def test_errors_have_localizable_safe_codes(setup, monkeypatch):
+    server, client = setup
+    assert client.get(server.prefix + "/api/state").json()["code"] == "session_required"
+    post = login(server, client)
+    assert post("account", {"password": "SECRET"}).json()["code"] == "validation_failed"
+
+    async def failed(*args):
+        raise ui.UIError("固定文案", "connection_failed")
+
+    monkeypatch.setattr(ui, "check_connection", failed)
+    assert post("check", {"name": "work"}).json()["code"] == "connection_failed"
+    server.expires = time.monotonic() - 1
+    assert post("check", {"name": "work"}).json()["code"] == "session_expired"

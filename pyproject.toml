@@ -1,6 +1,6 @@
 [project]
 name = "all-email-in-chat"
-version = "0.2.0"
+version = "0.3.0"
 description = "Configure your email once. Bring it to your desktop AI agents through MCP."
 readme = "README.md"
 requires-python = ">=3.12"

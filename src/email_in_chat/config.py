@@ -14,15 +14,11 @@ from pathlib import Path
 import tomli_w
 from filelock import FileLock
 
+from email_in_chat.providers import PROVIDERS
+
 MODES = ("read", "draft", "manage")
 SENTINEL = "__KEYRING__"
 KEYRING_SERVICE = "mcp-email-server"
-PROVIDERS = {
-    "privateemail": {"imap": "mail.privateemail.com", "smtp": "mail.privateemail.com"},
-    "aliyun-enterprise": {"imap": "imap.qiye.aliyun.com", "smtp": "smtp.qiye.aliyun.com"},
-    "aliyun-personal": {"imap": "imap.aliyun.com", "smtp": "smtp.aliyun.com"},
-    "custom": {},
-}
 
 
 class ConfigError(ValueError):
@@ -228,8 +224,8 @@ def add_account(
     full_name: str = "",
     imap_host: str | None = None,
     smtp_host: str | None = None,
-    imap_port: int = 993,
-    smtp_port: int = 465,
+    imap_port: int | None = None,
+    smtp_port: int | None = None,
     receive_only: bool = False,
     replace_existing: bool = False,
 ) -> dict:
@@ -252,6 +248,8 @@ def add_account(
         if not isinstance(provider, str) or provider not in PROVIDERS:
             raise ConfigError("Unknown provider preset.")
         preset = PROVIDERS[provider]
+        imap_port = preset["imap_port"] if imap_port is None else imap_port
+        smtp_port = preset["smtp_port"] if smtp_port is None else smtp_port
         item = {
             "name": name,
             "email": _address(email),
